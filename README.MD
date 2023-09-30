@@ -10,6 +10,8 @@ This is the code (json) of Logic App, you need to change the following settings:
 * your_openai_token: replace this with your actual openai token
 * channel_webhook_url: replace this with your actual webhook url from your channel (refer here for more about channel webhook: https://learn.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/what-are-webhooks-and-connectors)
 * You need to point your outgoing webhook to url of logic-app-reciever (the actual url will be generated when logic app saved)
+* your_reply_prompt: your prompt which should be combined with the channel response to send to LLM
+* your_prompt: your prompt which should be sent to LLM to initiate a conversation.
 
 ## Workflow diagram
 ### Sender
