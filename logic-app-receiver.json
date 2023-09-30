@@ -1,0 +1,204 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each": {
+                "actions": {
+                    "For_each_2": {
+                        "actions": {
+                            "For_each_3": {
+                                "actions": {
+                                    "send_to_channel": {
+                                        "inputs": {
+                                            "body": {
+                                                "text": "@{items('For_each_3')?['message']?['content']}"
+                                            },
+                                            "headers": {
+                                                "content-type": "application/json"
+                                            },
+                                            "method": "POST",
+                                            "uri": "channel_webhook_url"
+                                        },
+                                        "runAfter": {},
+                                        "type": "Http"
+                                    }
+                                },
+                                "foreach": "@body('Parse_JSON_2')?['choices']",
+                                "runAfter": {
+                                    "Parse_JSON_2": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "Foreach"
+                            },
+                            "Parse_JSON_2": {
+                                "inputs": {
+                                    "content": "@body('Send_request_to_chatGPT')",
+                                    "schema": {
+                                        "properties": {
+                                            "choices": {
+                                                "items": {
+                                                    "properties": {
+                                                        "finish_reason": {
+                                                            "type": "string"
+                                                        },
+                                                        "index": {
+                                                            "type": "integer"
+                                                        },
+                                                        "message": {
+                                                            "properties": {
+                                                                "content": {
+                                                                    "type": "string"
+                                                                },
+                                                                "role": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "index",
+                                                        "message",
+                                                        "finish_reason"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "created": {
+                                                "type": "integer"
+                                            },
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "model": {
+                                                "type": "string"
+                                            },
+                                            "object": {
+                                                "type": "string"
+                                            },
+                                            "usage": {
+                                                "properties": {
+                                                    "completion_tokens": {
+                                                        "type": "integer"
+                                                    },
+                                                    "prompt_tokens": {
+                                                        "type": "integer"
+                                                    },
+                                                    "total_tokens": {
+                                                        "type": "integer"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "runAfter": {
+                                    "Send_request_to_chatGPT": [
+                                        "Succeeded"
+                                    ]
+                                },
+                                "type": "ParseJson"
+                            },
+                            "Send_request_to_chatGPT": {
+                                "inputs": {
+                                    "body": {
+                                        "messages": [
+                                            {
+                                                "content": "your_reply_prompt",
+                                                "role": "system"
+                                            }
+                                        ],
+                                        "model": "gpt-3.5-turbo",
+                                        "temperature": 0.8
+                                    },
+                                    "headers": {
+                                        "Authorization": "Bearer your_openai_token",
+                                        "Content-Type": "application/json"
+                                    },
+                                    "method": "POST",
+                                    "uri": "https://api.openai.com/v1/chat/completions"
+                                },
+                                "runAfter": {},
+                                "type": "Http"
+                            }
+                        },
+                        "foreach": "@items('For_each')['content']['body']",
+                        "runAfter": {},
+                        "type": "Foreach"
+                    }
+                },
+                "foreach": "@triggerBody()?['attachments']",
+                "runAfter": {},
+                "type": "Foreach"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {},
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "properties": {
+                            "attachments": {
+                                "items": {
+                                    "properties": {
+                                        "content": {
+                                            "properties": {
+                                                "body": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "text": {
+                                                                "type": "string"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type",
+                                                            "text"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "version": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "contentType": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "contentType",
+                                        "content"
+                                    ],
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            "type": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    },
+    "parameters": {}
+}
